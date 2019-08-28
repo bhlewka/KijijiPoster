@@ -33,13 +33,13 @@ def getCredentials():
 # Returns title, price, description
 def getAdInformation(directory):
 
-    title, price, description = open("ads/"+directory+"/Ad.txt").read().split("\n", 2)
+    title, price, description = open("ads\\"+directory+"\\Ad.txt").read().split("\n", 2)
     return title, price, description
 
 # This will return the absolute path to all images
 # Returns a list of absolute paths to images
 def getAdImagePaths(directory):
-    ads = os.getcwd() + "/ads/" + directory
+    ads = os.getcwd() + "\\ads\\" + directory
     files = os.listdir(ads)
 
     # We will go through this list and remove the hidden files as well as Ad.txt
@@ -48,13 +48,13 @@ def getAdImagePaths(directory):
     images = []
     for file in files:
         if file[0] != "." and file != "Ad.txt":
-            images.append(ads + "/" + file)
+            images.append(ads + "\\" + file)
     return images
 
 # This retrieves the directory name of each ad
 # Returns list of ad folder names
 def getAds():
-    ads = os.getcwd() + "/ads/"
+    ads = os.getcwd() + "\\ads\\"
     ads = os.listdir(ads)
     return ads
 
@@ -102,26 +102,39 @@ def postAd(browser, directory):
     # Create the file string and enter it into the image selection window
     # Allow files to be uploaded
     # I think really slow internet could mess this part up, so we will give it some generous load time (5 seconds)
+    # Need to replace \\ with /
     images = getAdImagePaths(directory)
-
     files = ""
     for imagePath in images:
-        files += '"' + imagePath + '" '
+        files += '"' + imagePath.replace("//", "\\") + '" '
 
     time.sleep(longSleep)
     pyautogui.typewrite(files)
     time.sleep(shortSleep)
     pyautogui.press('enter')
     time.sleep(longSleep)
+    pyautogui.press("pagedown")
 
-    # Enter postal code
-    browser.find_element_by_xpath('//*[@id="location"]').send_keys("T5S 2R9")
-    pyautogui.press("tab")
+    # Allow lots of time for pictures to upload, maybe like 10 seconds?
+    time.sleep(10)
+
+    # Enter postal code (also hard coded)
+    # This only needs to be done once (ever?) so we can just use a try/except
+    try:
+        browser.find_element_by_xpath('//*[@id="location"]').send_keys("T5S 2R9")
+        time.sleep(longSleep)
+        pyautogui.press("down")
+        pyautogui.press("enter")
+        pyautogui.press("tab")
+    except:
+        # Basically, skip this location part because it is already there
+        pass
     pyautogui.press("pagedown")
     time.sleep(shortSleep)
 
-    # Enter price
-    browser.find_element_by_xpath('//*[@id="PriceAmount"]').send_keys(price)
+    # Enter price and phone number (hard coded)
+    browser.find_element_by_xpath('//*[@id="PriceAmount"]').send_keys(price.replace("$", ""))
+    browser.find_element_by_xpath('//*[@id="PhoneNumber"]').send_keys("780-481-2020")
     pyautogui.press("tab")
     pyautogui.press("pagedown")
     time.sleep(shortSleep)
@@ -130,7 +143,7 @@ def postAd(browser, directory):
     browser.find_element_by_xpath('/html/body/div[5]/div[3]/div[1]/form/div/div[9]/button[1]').click()
     pyautogui.press("tab")
     pyautogui.press("pagedown")
-    time.sleep(shortSleep)
+    time.sleep(longSleep)
 
 
 
@@ -143,9 +156,22 @@ def main():
     # Get the ads
     ads = getAds()
 
+    # We want to post 10 ads per account
+    # Just increment and login to the new account every 10 ads
+    counter = 0
     for creds in credentials:
         browser = login(creds)
+        for i in range(2):
+            try:
+                ad = ads[counter]
+            except:
+                # No more ads to post
+                print("all ads posted")
+                exit()
 
-        postAd(browser, ads[0])
-
+            postAd(browser, ad)
+            counter += 1
+        # Close the browser and start again with the new account
+        # Could also just logout and login with the new account but not a big deal here
+        browser.close()
 main()
