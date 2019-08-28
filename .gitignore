@@ -1,3 +1,14 @@
+# Files to not upload
+.gitignore
+ads.zip
+ads/
+login.txt
+oldCode.py
+time.txt
+.idea/
+geckodriver.exe
+marketplace.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
