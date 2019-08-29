@@ -15,6 +15,12 @@ shortSleep = 0.2
 # For all other loading, including file uploads, page refreshes or reloads, etc.
 longSleep = 5
 
+# Other hardcoded variables
+postalCode = ""
+phone = ""
+
+
+
 # This will get the username and password from a text file
 # Supports multiple logins, line separated
 # Returns list of username,password
@@ -23,20 +29,24 @@ def getCredentials():
     # Open/read the file
     file = open("login.txt")
     file = file.read().splitlines()
+
+    # Create list of usernames/passwords
     creds = []
     for credentials in file:
         credentials = credentials.split(", ")
         creds.append([credentials[0], credentials[1]])
     return creds
 
-# This will retrieve the relevant info for the ad posting
+
+# This will retrieve the relevant info for the ad posting directory
 # Returns title, price, description
 def getAdInformation(directory):
 
     title, price, description = open("ads\\"+directory+"\\Ad.txt").read().split("\n", 2)
     return title, price, description
 
-# This will return the absolute path to all images
+
+# This will return the absolute path to all images based on the directory
 # Returns a list of absolute paths to images
 def getAdImagePaths(directory):
     ads = os.getcwd() + "\\ads\\" + directory
@@ -51,6 +61,7 @@ def getAdImagePaths(directory):
             images.append(ads + "\\" + file)
     return images
 
+
 # This retrieves the directory name of each ad
 # Returns list of ad folder names
 def getAds():
@@ -58,6 +69,8 @@ def getAds():
     ads = os.listdir(ads)
     return ads
 
+# Initialize the browser, logging in with the given user/pass
+# Returns browser object
 def login(creds):
 
     # Init the browser, in this case firefox
@@ -77,7 +90,8 @@ def login(creds):
 
     return browser
 
-# This will post an ad to the kijiji marketplace
+
+# This will post an ad to the kijiji marketplace, takes browser object and directory
 def postAd(browser, directory):
 
     # Get ad info
@@ -102,7 +116,7 @@ def postAd(browser, directory):
     # Create the file string and enter it into the image selection window
     # Allow files to be uploaded
     # I think really slow internet could mess this part up, so we will give it some generous load time (5 seconds)
-    # Need to replace \\ with /
+    # Need to replace \\ with / for some reason, mac vs windows inconsistencies are getting annoying
     images = getAdImagePaths(directory)
     files = ""
     for imagePath in images:
@@ -121,7 +135,7 @@ def postAd(browser, directory):
     # Enter postal code (also hard coded)
     # This only needs to be done once (ever?) so we can just use a try/except
     try:
-        browser.find_element_by_xpath('//*[@id="location"]').send_keys("T5S 2R9")
+        browser.find_element_by_xpath('//*[@id="location"]').send_keys(postalCode)
         time.sleep(longSleep)
         pyautogui.press("down")
         pyautogui.press("enter")
@@ -133,8 +147,8 @@ def postAd(browser, directory):
     time.sleep(shortSleep)
 
     # Enter price and phone number (hard coded)
-    browser.find_element_by_xpath('//*[@id="PriceAmount"]').send_keys(price.replace("$", ""))
-    browser.find_element_by_xpath('//*[@id="PhoneNumber"]').send_keys("780-481-2020")
+    browser.find_element_by_xpath('//*[@id="PriceAmount"]').send_keys(price.replace("$", "").replace(",", ""))
+    browser.find_element_by_xpath('//*[@id="PhoneNumber"]').send_keys(phone)
     pyautogui.press("tab")
     pyautogui.press("pagedown")
     time.sleep(shortSleep)
@@ -161,12 +175,13 @@ def main():
     counter = 0
     for creds in credentials:
         browser = login(creds)
-        for i in range(2):
+        for i in range(10):
             try:
                 ad = ads[counter]
             except:
                 # No more ads to post
-                print("all ads posted")
+                # Program exits
+                print("All ads posted")
                 exit()
 
             postAd(browser, ad)
@@ -174,4 +189,6 @@ def main():
         # Close the browser and start again with the new account
         # Could also just logout and login with the new account but not a big deal here
         browser.close()
+
+
 main()
