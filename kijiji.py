@@ -199,8 +199,14 @@ def postAd(browser, directory):
     # Right now we will just try to click on both xpaths that potentially lead to the Post Your Ad button
     # browser.find_element_by_xpath('//*[@id="MainForm"]/div[9]/button[1]').click()
     # browser.find_element_by_xpath('/html/body/div[3]/div[1]/div/header/div[3]/div/div[2]/div/a[2]')
-    browser.find_element_by_name('saveAndCheckout').click()
+    try:
+        # This should work
+        browser.find_element_by_name('saveAndCheckout').click()
+    except:
+        # If it doesn't, use the error Rohan was getting on his surface laptop
+        browser.find_element_by_xpath('/html/body/div[3]/div[1]/div/header/div[3]/div/div[2]/div/a[2]').click()
 
+    # This is some extra sleeping for loading, uploading, and to make it look like not a bot??
     time.sleep(longSleep)
     pyautogui.press("pagedown")
     time.sleep(longSleep)
