@@ -3,15 +3,17 @@ Automated kijiji ad poster using selenium
 
 ### Requirements
 - Latest release of Python3
-- Selenium for Python
+- Selenium3 for Python
 - Pyautogui
 - Geckodriver (by Mozilla, found [here](https://github.com/mozilla/geckodriver/releases))
+- Ublock origin for firefox (specifically the .xpi file, found [here](https://addons.mozilla.org/en-CA/firefox/addon/ublock-origin/))
 - Mozilla Firefox
 ### Instructions
-1. Make sure the geckodriver.exe, login.txt, and ads directory are in the same directory as kijiji.py
+1. Make sure the geckodriver.exe and uBlock0@raymondhill.net.xpi, login.txt, and ads directory are in the same directory as kijiji.py
     ```
     Documents\KijijiProgram\kijiji.py
     Documents\KijijiProgram\geckodriver.exe
+    Documents\KijijiProgram\uBlock0@raymondhill.net.xpi
     Documents\KijijiProgram\ads\couch\...
     Documents\KijijiProgram\ads\chair\...
     ```
@@ -34,10 +36,28 @@ Automated kijiji ad poster using selenium
     ```
 3. Make sure Ad.txt is properly formatted
     - The first line should be the item name
-    - The second line should be the item price
+    - The second line should be the category
+        - Refer to the category ID's here (sorted alphabetically)
+            ```
+            246 = Beds and Mattressses            
+            249 = Bookcases & Shelving Units
+            245 = Chairs and Recliners          
+            241 = Coffee Tables                  
+            238 = Couches and Futons             
+            239 = Desks                          
+            243 = Dining Tables & Sets           
+            247 = Dressers and Wardrobes          
+            250 = Hutches & Display Cabinets
+            237 = Multi-Item                     
+            236 = Other                         
+            244 = Other Tables                    
+            242 = TV Tables & Entertainment Units
+            ```
+    - The third line should be the item price
     - Everything else should be the item description
     ```
     Climbing Shoes
+    245
     $100
     Never worn, in the packaging
     Size 42, excellent for slab problems
@@ -59,10 +79,10 @@ Automated kijiji ad poster using selenium
 
 ### Future Improvements
 - Script to run both programs
-- Delete previous ads before posting new ones
 - More robust Ad.txt (or a spreadsheet) for extra information, such as the ad category
 - Scroll into view using selenium, instead of hardcoding page down
 - Bypass the file upload window
+- Install extensions on firefox to block ads, making things run way faster
 
 ### Notes
 - Could probably make a script that runs both of these in sequence just by being clicked on,

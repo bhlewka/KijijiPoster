@@ -42,8 +42,8 @@ def getCredentials():
 # Returns title, price, description
 def getAdInformation(directory):
 
-    title, price, description = open("ads\\"+directory+"\\Ad.txt").read().split("\n", 2)
-    return title, price, description
+    title, category, price, description = open("ads\\"+directory+"\\Ad.txt").read().split("\n", 3)
+    return title, category, price, description
 
 
 # This will return the absolute path to all images based on the directory
@@ -74,9 +74,13 @@ def getAds():
 def login(creds):
 
     # Init the browser, in this case firefox
+    browser = webdriver.Firefox()  # (executable_path='geckodriver')
+
+    # Install adblocking extension
+    browser.install_addon(os.getcwd()+"\\uBlock0@raymondhill.net.xpi", temporary=True)
+
     # Take us to kijiji and maximize the window
     # So, maybe only halfscreening the window is better for testing, then we can see the terminal output in real time
-    browser = webdriver.Firefox()  # (executable_path='geckodriver')
     browser.maximize_window()
     browser.get('https://www.kijiji.ca/t-login.html')
 
@@ -94,6 +98,7 @@ def login(creds):
 def deleteAds(browser):
 
     browser.get("https://www.kijiji.ca/m-my-ads/active/1")
+    time.sleep(longSleep)
 
     # Assume there are at most 10 ads
     # Click each element from the xpaths here
@@ -113,6 +118,7 @@ def deleteAds(browser):
             time.sleep(longSleep)
             break
 
+    # exit()
     # /html/body/div[3]/div[4]/div/div/div/div[4]/ul/li[4]/div[2]/div/ul/li[2]/button/span
     # /html/body/div[3]/div[4]/div/div/div/div[4]/ul/li[3]/div[2]/div/ul/li[2]/button/span
     # /html/body/div[3]/div[4]/div/div/div/div[4]/ul/li[2]/div[2]/div/ul/li[2]/button/span
@@ -123,13 +129,9 @@ def deleteAds(browser):
 def postAd(browser, directory):
 
     # Get ad info
-    title, price, description = getAdInformation(directory)
+    title, category, price, description = getAdInformation(directory)
 
-    # Skip category selection screen, go straight to ad post page
-    # 236 is currently other
-    # We can decide how to do this later
-    category = 236
-    browser.get("https://www.kijiji.ca/p-admarkt-post-ad.html?categoryId=%s&adTitle=%s" % (str(category), title))
+    browser.get("https://www.kijiji.ca/p-admarkt-post-ad.html?categoryId=%s&adTitle=" % (str(category)))
     time.sleep(longSleep)
 
     # Input title
@@ -194,7 +196,11 @@ def postAd(browser, directory):
     # It is *rarely* different when I get the path from the inspector
     # We will try this shortened path instead
     # browser.find_element_by_xpath('/html/body/div[5]/div[3]/div[1]/form/div/div[9]/button[1]').click()
-    browser.find_element_by_xpath('//*[@id="MainForm"]/div[9]/button[1]').click()
+    # Right now we will just try to click on both xpaths that potentially lead to the Post Your Ad button
+    # browser.find_element_by_xpath('//*[@id="MainForm"]/div[9]/button[1]').click()
+    # browser.find_element_by_xpath('/html/body/div[3]/div[1]/div/header/div[3]/div/div[2]/div/a[2]')
+    browser.find_element_by_name('saveAndCheckout').click()
+
     time.sleep(longSleep)
     pyautogui.press("pagedown")
     time.sleep(longSleep)
