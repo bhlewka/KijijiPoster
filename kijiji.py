@@ -154,9 +154,11 @@ def postAd(browser, directory):
     time.sleep(shortSleep)
 
     # Post Ad
-    browser.find_element_by_xpath('/html/body/div[5]/div[3]/div[1]/form/div/div[9]/button[1]').click()
-    pyautogui.press("tab")
-    pyautogui.press("pagedown")
+    # Strange, it seems the full xpath only seems to work some of the time
+    # It is *rarely* different when I get the path from the inspector
+    # We will try this shortened path instead
+    # browser.find_element_by_xpath('/html/body/div[5]/div[3]/div[1]/form/div/div[9]/button[1]').click()
+    browser.find_element_by_xpath('//*[@id="MainForm"]/div[9]/button[1]').click()
     time.sleep(longSleep)
 
 
