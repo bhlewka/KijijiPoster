@@ -57,6 +57,13 @@ Automated kijiji ad poster using selenium
     - Or when the terminal closes
     - You'll figure it out, its not like it does anything cool like shoot fireworks
 
+### Future Improvements
+- Script to run both programs
+- Delete previous ads before posting new ones
+- More robust Ad.txt (or a spreadsheet) for extra information, such as the ad category
+- Scroll into view using selenium, instead of hardcoding page down
+- Bypass the file upload window
+
 ### Notes
 - Could probably make a script that runs both of these in sequence just by being clicked on,
 rather than expecting people to use the command line themselves

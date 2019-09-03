@@ -10,7 +10,7 @@ pyautogui.FAILSAFE = True
 # For now we will pick some conservative times, so things should work out of the box
 
 # For tabbing, arrow keys, and interacting with a single webpage
-shortSleep = 0.2
+shortSleep = 0.5
 
 # For all other loading, including file uploads, page refreshes or reloads, etc.
 longSleep = 5
@@ -90,6 +90,34 @@ def login(creds):
 
     return browser
 
+# This will delete all the currently active ads
+def deleteAds(browser):
+
+    browser.get("https://www.kijiji.ca/m-my-ads/active/1")
+
+    # Assume there are at most 10 ads
+    # Click each element from the xpaths here
+    # Scrolling to each element might be a good idea too
+    # Basically click, wait, repeat
+
+    for i in range(1, 11):
+
+        # Try to click each one
+        try:
+            # You can see that each delete button is differentiated by a different line index
+            xpath = "/html/body/div[3]/div[4]/div/div/div/div[4]/ul/li[%s]/div[2]/div/ul/li[2]/button/span" % str(i)
+            browser.find_element_by_xpath(xpath).click()
+            time.sleep(longSleep)
+        except:
+            # No more ads to delete
+            time.sleep(longSleep)
+            break
+
+    # /html/body/div[3]/div[4]/div/div/div/div[4]/ul/li[4]/div[2]/div/ul/li[2]/button/span
+    # /html/body/div[3]/div[4]/div/div/div/div[4]/ul/li[3]/div[2]/div/ul/li[2]/button/span
+    # /html/body/div[3]/div[4]/div/div/div/div[4]/ul/li[2]/div[2]/div/ul/li[2]/button/span
+    # /html/body/div[3]/div[4]/div/div/div/div[4]/ul/li[1]/div[2]/div/ul/li[2]/button/span
+
 
 # This will post an ad to the kijiji marketplace, takes browser object and directory
 def postAd(browser, directory):
@@ -104,14 +132,14 @@ def postAd(browser, directory):
     browser.get("https://www.kijiji.ca/p-admarkt-post-ad.html?categoryId=%s&adTitle=%s" % (str(category), title))
     time.sleep(longSleep)
 
-    # Input description
-    browser.find_element_by_xpath('//*[@id="pstad-descrptn"]').send_keys(description)
-    pyautogui.press("pagedown")
+    # Input title
+    browser.find_element_by_xpath('//*[@id="postad-title"]').send_keys(title)
     time.sleep(shortSleep)
 
-    # Select images
-    browser.find_element_by_xpath('//*[@id="ImageUploadButton"]').click()
-    time.sleep(longSleep)
+    # Input description
+    browser.find_element_by_xpath('//*[@id="pstad-descrptn"]').send_keys(description)
+    time.sleep(shortSleep)
+    pyautogui.press("pagedown")
 
     # Create the file string and enter it into the image selection window
     # Allow files to be uploaded
@@ -121,12 +149,20 @@ def postAd(browser, directory):
     files = ""
     for imagePath in images:
         files += '"' + imagePath.replace("//", "\\") + '" '
+        # files += '' + imagePath.replace("//", "\\") + ' '
+
+
+    # Select images
+    browser.find_element_by_xpath('//*[@id="ImageUploadButton"]').click()
+    time.sleep(longSleep)
+
+    # browser.execute_script("document.getElementById('ImageUploadButton').setAttribute('value', '%s')" % files)
 
     time.sleep(longSleep)
     pyautogui.typewrite(files)
     time.sleep(shortSleep)
     pyautogui.press('enter')
-    time.sleep(longSleep)
+    time.sleep(shortSleep)
     pyautogui.press("pagedown")
 
     # Allow lots of time for pictures to upload, maybe like 10 seconds?
@@ -139,19 +175,19 @@ def postAd(browser, directory):
         time.sleep(longSleep)
         pyautogui.press("down")
         pyautogui.press("enter")
-        pyautogui.press("tab")
+        pyautogui.press("pagedown")
+
     except:
         # Basically, skip this location part because it is already there
         pass
-    pyautogui.press("pagedown")
     time.sleep(shortSleep)
 
     # Enter price and phone number (hard coded)
     browser.find_element_by_xpath('//*[@id="PriceAmount"]').send_keys(price.replace("$", "").replace(",", ""))
-    browser.find_element_by_xpath('//*[@id="PhoneNumber"]').send_keys(phone)
-    pyautogui.press("tab")
-    pyautogui.press("pagedown")
     time.sleep(shortSleep)
+    browser.find_element_by_xpath('//*[@id="PhoneNumber"]').send_keys(phone.replace("-", ""))
+    time.sleep(shortSleep)
+    pyautogui.press("pagedown")
 
     # Post Ad
     # Strange, it seems the full xpath only seems to work some of the time
@@ -160,7 +196,8 @@ def postAd(browser, directory):
     # browser.find_element_by_xpath('/html/body/div[5]/div[3]/div[1]/form/div/div[9]/button[1]').click()
     browser.find_element_by_xpath('//*[@id="MainForm"]/div[9]/button[1]').click()
     time.sleep(longSleep)
-
+    pyautogui.press("pagedown")
+    time.sleep(longSleep)
 
 
 def main():
@@ -171,12 +208,17 @@ def main():
 
     # Get the ads
     ads = getAds()
+    print(ads)
 
     # We want to post 10 ads per account
     # Just increment and login to the new account every 10 ads
     counter = 0
     for creds in credentials:
+
+        # Login to the new account and delete all the ads
         browser = login(creds)
+        deleteAds(browser)
+
         for i in range(10):
             try:
                 ad = ads[counter]
@@ -187,6 +229,7 @@ def main():
                 exit()
 
             postAd(browser, ad)
+            print(ad, "posted")
             counter += 1
         # Close the browser and start again with the new account
         # Could also just logout and login with the new account but not a big deal here
