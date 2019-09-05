@@ -79,10 +79,15 @@ Automated kijiji ad poster using selenium
 
 ### Future Improvements
 - Script to run both programs
-- More robust Ad.txt (or a spreadsheet) for extra information, such as the ad category
-- Scroll into view using selenium, instead of hardcoding page down
+- ~~More robust Ad.txt (or a spreadsheet) for extra information, such as the ad category~~
+- ~~Scroll into view using selenium, instead of hardcoding page down~~
+    - Turns out you don't need to scroll things into view with in order for them to be clickable
+    *however* I think the extra "human" inputs help circumvent the spam filter?
 - Bypass the file upload window
-- Install extensions on firefox to block ads, making things run way faster
+    - Supposedly this is easy to do, but I cant seem to get it working yet
+- ~~Install extensions on firefox to block ads, making things run way faster~~
+    - This was an incredible idea, sometimes selenium would timeout because some of the ads took
+    way too long to load
 
 ### Notes
 - Could probably make a script that runs both of these in sequence just by being clicked on,
