@@ -88,6 +88,8 @@ Automated kijiji ad poster using selenium
 - ~~Install extensions on firefox to block ads, making things run way faster~~
     - This was an incredible idea, sometimes selenium would timeout because some of the ads took
     way too long to load
+- Would definitely be cleaner to create an ad object that just gets created and passed in to the postAd function each
+time it is called I think
 
 ### Notes
 - Could probably make a script that runs both of these in sequence just by being clicked on,
